@@ -1,39 +1,15 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <string>
+#include "Classifier.h"
+
 using namespace std;
 
 bool running = true;
 
-vector<int> flatten(const vector<vector<int>>& grid)
+vector<vector<int>> inputGrid()
 {
-    vector<int> result;
-
-    for(const auto& row : grid)
-    {
-        for(int pixel : row)
-        {
-            result.push_back(pixel);
-        }
-    }
-
-    return result;
-}
-
-double distance(vector<int> v1, vector<int> v2) {
-    double dist = 0;
-
-    for(size_t i = 0; i < v1.size(); i++)
-    {
-        dist += pow(v1[i] - v2[i], 2);
-    }
-
-    dist = sqrt(dist);
-
-    return dist;
-}
-
-vector<vector<int>> inputGrid() {
     int rows;
     int columns;
 
@@ -45,7 +21,7 @@ vector<vector<int>> inputGrid() {
 
     vector<vector<int>> grid(rows, vector<int>(columns));
 
-    cout << "Input grid (press enter after each row): " << endl; 
+    cout << "Input grid (press enter after each row): " << endl;
 
     for(int row = 0; row < rows; row++)
     {
@@ -83,31 +59,80 @@ vector<vector<int>> inputGrid() {
 
         for(int column = 0; column < columns; column++)
         {
-            // subtract ascii value to get actual num value
-            grid[row][column] = (int)line[column] - (int)'0';
+            grid[row][column] = line[column] - '0';
         }
     }
 
     return grid;
 }
 
-int main() {
-    while (running) {
-        cout << "1: placeholder" << endl;
-        cout << "2: placeholder" << endl;
+void printGrid(const vector<vector<int>>& grid)
+{
+    for(const auto& row : grid)
+    {
+        for(int pixel : row)
+        {
+            cout << pixel;
+        }
+        cout << endl;
+    }
+}
+
+void runClassifier(const vector<vector<int>>& grid)
+{
+    cout << endl;
+    cout << "Input Pattern:" << endl;
+    printGrid(grid);
+
+    cout << endl;
+    cout << "Detected Pattern: " << Classifier::classify(grid) << endl;
+    cout << "Confidence: " << Classifier::confidence(grid) << "%" << endl;
+}
+
+int main()
+{
+    while (running)
+    {
+        cout << endl;
+        cout << "Pixel Pattern Classifier" << endl;
+        cout << "1: Classify custom pattern" << endl;
+        cout << "2: Test X template" << endl;
+        cout << "3: Test O template" << endl;
+        cout << "4: Test T template" << endl;
+        cout << "0: Exit" << endl;
+        cout << "Choose: ";
 
         int choice;
         cin >> choice;
 
-        switch (choice) 
+        switch (choice)
         {
             case 1:
-                cout << "dist: " << distance(flatten(inputGrid()), flatten(inputGrid())) << endl;
+            {
+                vector<vector<int>> grid = inputGrid();
+                runClassifier(grid);
+                break;
+            }
+
             case 2:
+                runClassifier(Classifier::getTemplateX());
+                break;
+
+            case 3:
+                runClassifier(Classifier::getTemplateO());
+                break;
+
+            case 4:
+                runClassifier(Classifier::getTemplateT());
+                break;
+
+            case 0:
+                running = false;
+                cout << "Program ended." << endl;
                 break;
 
             default:
-                cout << "invalid";
+                cout << "Invalid choice." << endl;
         }
     }
 
