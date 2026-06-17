@@ -19,12 +19,6 @@ vector<vector<int>> inputGrid()
     cout << "Input number of columns:" << endl;
     cin >> columns;
 
-    if (rows != 5 || columns != 5)
-    {
-        cout << "For this demo, please use a 5x5 grid." << endl;
-        return inputGrid();
-    }
-
     vector<vector<int>> grid(rows, vector<int>(columns));
 
     cout << "Input grid (press enter after each row): " << endl;
@@ -72,6 +66,73 @@ vector<vector<int>> inputGrid()
     return grid;
 }
 
+// Uses nearest-neighbor to resize
+vector<vector<int>> resize(const vector<vector<int>>& grid, int targetWidth, int targetHeight) {
+    int originalHeight = grid.size();
+    int originalWidth = grid[0].size();
+
+    vector<vector<int>> resized(targetHeight, vector<int>(targetWidth));
+
+    for (int y = 0; y < targetHeight; y++)
+    {
+        for (int x = 0; x < targetWidth; x++)
+        {
+            int srcY = (double)y * (double)originalHeight / (double)targetHeight;
+            int srcX = (double)x * (double)originalWidth / (double)targetWidth;
+
+            resized[y][x] = grid[srcY][srcX];
+        }
+    }
+
+    return resized;
+}
+
+vector<vector<int>> isolateTargetSymbol(const vector<vector<int>>& grid) {
+    int minX = INT_MAX;
+    int maxX = -1;
+    int minY = INT_MAX;
+    int maxY = -1;
+
+    for(int y = 0; y < grid.size(); y++) 
+    {
+        const auto& row = grid[y];
+        for (int x = 0; x < row.size(); x++) 
+        {
+            if (row[x] != 1) 
+            {
+                continue;
+            }
+
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY =y;
+        }
+    }
+
+    // Check if grid is empty
+    if (maxX == -1) {
+        return {{0}};
+    }
+
+    vector<vector<int>> isolated;
+
+    // Copy the non-whitespace parts pack into a new grid
+    for (int y = minY; y <= maxY; y++)
+    {
+        vector<int> row;
+
+        for (int x = minX; x <= maxX; x++)
+        {
+            row.push_back(grid[y][x]);
+        }
+
+        isolated.push_back(row);
+    }
+
+    return isolated;
+}
+
 void printGrid(const vector<vector<int>>& grid)
 {
     for(const auto& row : grid)
@@ -115,7 +176,8 @@ int main()
         {
             case 1:
             {
-                vector<vector<int>> grid = inputGrid();
+                vector<vector<int>> grid = resize(isolateTargetSymbol(inputGrid()), Classifier::canonicalWidth, Classifier::canonicalHeight);
+
                 runClassifier(grid);
                 break;
             }

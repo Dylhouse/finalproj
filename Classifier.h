@@ -9,6 +9,10 @@ using namespace std;
 class Classifier
 {
 public:
+    static constexpr int canonicalWidth = 5;
+    static constexpr int canonicalHeight = 5;
+
+
     static vector<vector<int>> getTemplateX();
 
     static vector<vector<int>> getTemplateO();
