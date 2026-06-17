@@ -19,6 +19,12 @@ vector<vector<int>> inputGrid()
     cout << "Input number of columns:" << endl;
     cin >> columns;
 
+    if (rows != 5 || columns != 5)
+    {
+        cout << "For this demo, please use a 5x5 grid." << endl;
+        return inputGrid();
+    }
+
     vector<vector<int>> grid(rows, vector<int>(columns));
 
     cout << "Input grid (press enter after each row): " << endl;
