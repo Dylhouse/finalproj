@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 #include <vector>
 #include <cmath>
 #include <string>
@@ -64,6 +65,49 @@ vector<vector<int>> inputGrid()
     }
 
     return grid;
+}
+
+vector<vector<int>> noiseRemove(const vector<vector<int>>& grid) {
+    if (grid.empty() || grid[0].empty()) return {{0}};
+
+    int rows = grid.size();
+    int cols = grid[0].size();
+
+    vector<vector<int>> noiseRemoved(rows, vector<int>(cols));
+
+    // 8 directions (including diagonals)
+    const int offsetsY[8] = {-1, -1, -1,  0, 0, 1, 1, 1};
+    const int offsetsX[8] = {-1,  0,  1, -1, 1,-1, 0, 1};
+
+    for (int y = 0; y < rows; y++) {
+        for (int x = 0; x < cols; x++) {
+            bool isNoise = true;
+
+            if (grid[y][x] == 0) {
+                noiseRemoved[y][x] = 0;
+                continue;
+            }
+
+            for (int direction = 0; direction < 8; direction++) {
+                int offsetX = x + offsetsY[direction];
+                int offsetY = y + offsetsX[direction];
+
+                if (offsetX < 0 || offsetX >= rows ||
+                    offsetY < 0 || offsetY >= cols)
+                    continue;
+
+                if (grid[offsetY][offsetX] == 1) {
+                    isNoise = false;
+                    break;
+                }
+            }
+
+            if (isNoise) noiseRemoved[y][x] = 0;
+            else noiseRemoved[y][x] = 1;
+        }
+    }
+
+    return noiseRemoved;
 }
 
 // Uses nearest-neighbor to resize
@@ -176,7 +220,10 @@ int main()
         {
             case 1:
             {
-                vector<vector<int>> grid = resize(isolateTargetSymbol(inputGrid()), Classifier::canonicalWidth, Classifier::canonicalHeight);
+                vector<vector<int>> grid = inputGrid();
+                grid = noiseRemove(grid);
+                grid = isolateTargetSymbol(grid);
+                grid = resize(grid, Classifier::canonicalWidth, Classifier::canonicalHeight);
 
                 runClassifier(grid);
                 break;
