@@ -3,11 +3,49 @@
 #include <vector>
 #include <cmath>
 #include <string>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include "Classifier.h"
 
 using namespace std;
 
 bool running = true;
+
+vector<vector<int>> getGridFromImage(string& path) {
+    int width, height, channels;
+
+    unsigned char* imageBin = stbi_load(
+        path.c_str(),
+        &width,
+        &height,
+        &channels,
+        3
+    );
+
+    if (!imageBin) {
+        cerr << "Failed to load image\n";
+        return {{-1}};
+    }
+
+    vector<vector<int>> grid(height, vector<int>(width));
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int index = (y * width + x) * 3;
+
+            int r = imageBin[index];
+            int g = imageBin[index + 1];
+            int b = imageBin[index + 2];
+
+            grid[y][x] = (r == 0 && g == 0 && b == 0) ? 1 : 0;
+        }
+    }
+
+    stbi_image_free(imageBin);
+
+    return grid;
+}
 
 vector<vector<int>> inputGrid()
 {
@@ -210,6 +248,7 @@ int main()
         cout << "2: Test X template" << endl;
         cout << "3: Test O template" << endl;
         cout << "4: Test T template" << endl;
+        cout << "5: Classify from image" << endl;
         cout << "0: Exit" << endl;
         cout << "Choose: ";
 
@@ -240,6 +279,27 @@ int main()
             case 4:
                 runClassifier(Classifier::getTemplateT());
                 break;
+
+            case 5:
+            {
+                string filepath;
+                cout << "Enter filepath of image: " << endl;
+                cin >> filepath;
+
+                vector<vector<int>> imgGrid = getGridFromImage(filepath);
+
+                if (imgGrid[0][0] == -1) {
+                    cout << "Image failed to load.";
+                    break;
+                }
+
+                imgGrid = noiseRemove(imgGrid);
+                imgGrid = isolateTargetSymbol(imgGrid);
+                imgGrid = resize(imgGrid, Classifier::canonicalWidth, Classifier::canonicalHeight);
+
+                runClassifier(imgGrid);
+                break;
+            }
 
             case 0:
                 running = false;
