@@ -7,11 +7,14 @@ vector<vector<int>> Classifier::getTemplateX()
 {
     return
     {
-        {1,0,0,0,1},
-        {0,1,0,1,0},
-        {0,0,1,0,0},
-        {0,1,0,1,0},
-        {1,0,0,0,1}
+        {1,0,0,0,0,0,0,1},
+        {0,1,0,0,0,0,1,0},
+        {0,0,1,0,0,1,0,0},
+        {0,0,0,1,1,0,0,0},
+        {0,0,0,1,1,0,0,0},
+        {0,0,1,0,0,1,0,0},
+        {0,1,0,0,0,0,1,0},
+        {1,0,0,0,0,0,0,1}
     };
 }
 
@@ -19,11 +22,14 @@ vector<vector<int>> Classifier::getTemplateO()
 {
     return
     {
-        {1,1,1,1,1},
-        {1,0,0,0,1},
-        {1,0,0,0,1},
-        {1,0,0,0,1},
-        {1,1,1,1,1}
+        {0,0,1,1,1,1,0,0},
+        {0,1,0,0,0,0,1,0},
+        {1,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,1},
+        {0,1,0,0,0,0,1,0},
+        {0,0,1,1,1,1,0,0}
     };
 }
 
@@ -31,11 +37,14 @@ vector<vector<int>> Classifier::getTemplateT()
 {
     return
     {
-        {1,1,1,1,1},
-        {0,0,1,0,0},
-        {0,0,1,0,0},
-        {0,0,1,0,0},
-        {0,0,1,0,0}
+        {1,1,1,1,1,1,1,1},
+        {0,0,0,1,1,0,0,0},
+        {0,0,0,1,1,0,0,0},
+        {0,0,0,1,1,0,0,0},
+        {0,0,0,1,1,0,0,0},
+        {0,0,0,1,1,0,0,0},
+        {0,0,0,1,1,0,0,0},
+        {0,0,0,1,1,0,0,0}
     };
 }
 
@@ -96,8 +105,12 @@ double Classifier::confidence(const vector<vector<int>>& grid)
     double tDist = distance(input, flatten(getTemplateT()));
 
     double best = min(xDist, min(oDist, tDist));
+    double worst = sqrt(canonicalWidth*canonicalHeight);
 
-    double confidence = 100.0 / (1.0 + best);
+     double confidence =
+        100.0 * (1.0 - best / worst);
+
+    //double confidence = 100.0 / (1.0 + best);
 
     return confidence;
 }
