@@ -24,7 +24,6 @@ vector<vector<int>> getGridFromImage(string& path) {
     );
 
     if (!imageBin) {
-        cerr << "Failed to load image\n";
         return {{-1}};
     }
 
